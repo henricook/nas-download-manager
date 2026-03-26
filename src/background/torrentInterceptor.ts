@@ -1,5 +1,4 @@
 import {
-  SynologyClient,
   ClientRequestResult,
   DownloadStation2,
 } from "../common/apis/synology";
@@ -10,6 +9,15 @@ import { notify } from "../common/notify";
 import { getErrorForFailedResponse } from "../common/apis/errors";
 import { onStoredStateChange } from "../common/state/listen";
 import { getHostUrl } from "../common/state";
+
+// The webextension-polyfill overwrites the native browser global and doesn't
+// include Firefox-specific APIs like filterResponseData. Access it via the
+// chrome global which Firefox also exposes and the polyfill doesn't touch.
+declare const chrome: {
+  webRequest: {
+    filterResponseData: (requestId: string) => browser.webRequest.StreamFilter;
+  };
+};
 
 const TORRENT_URL_PATTERNS = [
   /\.torrent(\?|$)/i,
@@ -192,7 +200,7 @@ export function initializeTorrentInterceptor() {
       const headers = details.responseHeaders || [];
       const filename = guessFilename(details.url, headers);
 
-      const filter = browser.webRequest.filterResponseData(details.requestId);
+      const filter = chrome.webRequest.filterResponseData(details.requestId);
       const chunks: ArrayBuffer[] = [];
 
       filter.ondata = (event: { data: ArrayBuffer }) => {
