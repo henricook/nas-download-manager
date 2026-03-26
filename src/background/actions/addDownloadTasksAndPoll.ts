@@ -338,8 +338,7 @@ export async function addDownloadTasksAndPoll(
 ): Promise<void> {
   const normalizedOptions = {
     ...options,
-    // TODO: This seems wrong. Shouldn't this be ... ? path.slice(1) : path?
-    path: options?.path?.startsWith("/") ? options?.path.slice(1) : undefined,
+    path: options?.path?.startsWith("/") ? options.path.slice(1) : options?.path,
   };
 
   if (urls.length === 0) {

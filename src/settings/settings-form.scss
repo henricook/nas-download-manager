@@ -119,6 +119,13 @@ textarea.debugging-output {
   height: 3em;
 }
 
+textarea.destination-paths {
+  width: calc(100% - 20px);
+  height: 4em;
+  font-family: monospace;
+  resize: vertical;
+}
+
 .cannot-save {
   display: flex;
   justify-content: center;

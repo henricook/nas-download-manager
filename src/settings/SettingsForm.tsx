@@ -33,6 +33,7 @@ export interface Props {
 interface State {
   savesFailed: boolean;
   rawPollingInterval: string;
+  rawDestinationPaths: string;
 }
 
 const POLL_MIN_INTERVAL = 15;
@@ -49,6 +50,7 @@ export class SettingsForm extends React.PureComponent<Props, State> {
     rawPollingInterval:
       this.props.extensionState.settings.notifications.completionPollingInterval.toString() ||
       POLL_DEFAULT_INTERVAL.toString(),
+    rawDestinationPaths: (this.props.extensionState.settings.destinationPaths || []).join("\n"),
   };
 
   render() {
@@ -160,6 +162,32 @@ export class SettingsForm extends React.PureComponent<Props, State> {
               DOWNLOAD_ONLY_PROTOCOLS.join(", "),
             ])}
           />
+        </SettingsList>
+
+        <div className="horizontal-separator" />
+
+        <header>
+          <h3>{browser.i18n.getMessage("Download_Destinations")}</h3>
+          <p>{browser.i18n.getMessage("One_path_per_line_First_entry_is_the_default")}</p>
+        </header>
+
+        <SettingsList>
+          <li>
+            <textarea
+              className="destination-paths"
+              value={this.state.rawDestinationPaths}
+              placeholder={browser.i18n.getMessage("eg_incoming")}
+              onChange={(e) => {
+                const rawDestinationPaths = e.currentTarget.value;
+                this.setState({ rawDestinationPaths });
+                const destinationPaths = rawDestinationPaths
+                  .split("\n")
+                  .map((s) => s.trim())
+                  .filter((s) => s.length > 0);
+                this.saveSettings({ destinationPaths });
+              }}
+            />
+          </li>
         </SettingsList>
 
         {this.maybeRenderDebuggingOutputAndSeparator()}

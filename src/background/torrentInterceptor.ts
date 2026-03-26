@@ -16,9 +16,12 @@ const TORRENT_URL_PATTERNS = [
 ];
 
 let enabled = false;
+let defaultDestination: string | undefined = undefined;
 
 onStoredStateChange((state) => {
   enabled = state.settings.shouldHandleDownloadLinks;
+  const paths = state.settings.destinationPaths || [];
+  defaultDestination = paths.length > 0 ? paths[0] : undefined;
 });
 
 function isTorrentContentType(headers: browser.webRequest.HttpHeaders): boolean {
@@ -92,6 +95,7 @@ export function initializeTorrentInterceptor() {
         state.pollRequestManager,
         state.showNonErrorNotifications,
         [details.url],
+        defaultDestination ? { path: defaultDestination } : undefined,
       );
 
       return { cancel: true };

@@ -759,5 +759,17 @@
   "Auto_Extract_service_is_disabled_in_Download_Station": {
     "message": "Auto Extract service is disabled in Download Station.",
     "description": "Explanatory text for disabled input field in add-download form."
+  },
+  "Download_Destinations": {
+    "message": "Download Destinations",
+    "description": "Header for settings section."
+  },
+  "One_path_per_line_First_entry_is_the_default": {
+    "message": "One path per line. First entry is the default.",
+    "description": "Subheader for Download Destinations settings section."
+  },
+  "eg_incoming": {
+    "message": "e.g. incoming",
+    "description": "Placeholder for destination paths textarea."
   }
 }
