@@ -12,10 +12,8 @@ import { getHostUrl } from "../common/state";
 
 const TORRENT_URL_PATTERNS = [
   /\.torrent(\?|$)/i,
-  /gettorrent\.php/i,
-  /torrents\.php\?action=download/i,
+  /torrent/i,
   /\/download\.php\?.*id=/i,
-  /\/torrents\/download\//i,
 ];
 
 let enabled = false;
