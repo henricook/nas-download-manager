@@ -26,6 +26,27 @@ function recursivelyFindAnchorAncestor(
   }
 }
 
+browser.runtime.onMessage.addListener((request: any) => {
+  if (request?.type !== "fetch-torrent") {
+    return;
+  }
+  return fetch(request.url, {
+    headers: { accept: "application/x-bittorrent,application/octet-stream,*/*" },
+  }).then(async (response) => {
+    if (!response.ok) {
+      return { ok: false, status: response.status, statusText: response.statusText };
+    }
+    return {
+      ok: true,
+      status: response.status,
+      statusText: response.statusText,
+      content: await response.blob(),
+    };
+  }).catch((e) => {
+    return { ok: false, status: 0, statusText: e?.message || "Network error" };
+  });
+});
+
 // I hate this implementation. True protocol handling for extensions does not exist.
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1271553
 document.addEventListener("click", (e: MouseEvent) => {

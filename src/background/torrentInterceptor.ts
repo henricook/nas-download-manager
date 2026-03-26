@@ -10,15 +10,6 @@ import { getErrorForFailedResponse } from "../common/apis/errors";
 import { onStoredStateChange } from "../common/state/listen";
 import { getHostUrl } from "../common/state";
 
-// The webextension-polyfill overwrites the native browser global and doesn't
-// include Firefox-specific APIs like filterResponseData. Access it via the
-// chrome global which Firefox also exposes and the polyfill doesn't touch.
-declare const chrome: {
-  webRequest: {
-    filterResponseData: (requestId: string) => browser.webRequest.StreamFilter;
-  };
-};
-
 const TORRENT_URL_PATTERNS = [
   /\.torrent(\?|$)/i,
   /gettorrent\.php/i,
@@ -120,6 +111,22 @@ function shouldIntercept(
   return false;
 }
 
+async function fetchTorrentViaContentScript(
+  url: string,
+  tabId: number,
+): Promise<Blob | undefined> {
+  try {
+    const response = await browser.tabs.sendMessage(tabId, {
+      type: "fetch-torrent",
+      url,
+    });
+    if (response?.ok && response.content) {
+      return response.content as Blob;
+    }
+  } catch {}
+  return undefined;
+}
+
 async function sendTorrentToDS(content: Blob, filename: string) {
   const state = getMutableStateSingleton();
   const api = state.api;
@@ -199,25 +206,17 @@ export function initializeTorrentInterceptor() {
 
       const headers = details.responseHeaders || [];
       const filename = guessFilename(details.url, headers);
+      const tabId = details.tabId;
 
-      const filter = chrome.webRequest.filterResponseData(details.requestId);
-      const chunks: ArrayBuffer[] = [];
+      // Fetch the torrent via the content script (which has the page's
+      // cookies/session) then send the blob to Download Station.
+      fetchTorrentViaContentScript(details.url, tabId).then((blob) => {
+        if (blob) {
+          sendTorrentToDS(blob, filename);
+        }
+      });
 
-      filter.ondata = (event: { data: ArrayBuffer }) => {
-        chunks.push(event.data);
-      };
-
-      filter.onstop = () => {
-        filter.close();
-        const blob = new Blob(chunks, { type: "application/x-bittorrent" });
-        sendTorrentToDS(blob, filename);
-      };
-
-      filter.onerror = () => {
-        filter.close();
-      };
-
-      return {};
+      return { cancel: true };
     },
     { urls: ["http://*/*", "https://*/*"] },
     ["blocking", "responseHeaders"],

@@ -244,6 +244,7 @@ declare const browser: {
   };
   tabs: {
     create: (options?: TabCreateOptions) => Promise<Tab>;
+    sendMessage: (tabId: number, message: object) => Promise<any>;
   };
   contextMenus: {
     create: (options?: ContextMenusCreateOptions, callback?: () => void) => number | string;
