@@ -36,11 +36,15 @@ browser.runtime.onMessage.addListener((request: any) => {
     if (!response.ok) {
       return { ok: false, status: response.status, statusText: response.statusText };
     }
+    const contentType = response.headers.get("content-type") || "application/x-bittorrent";
+    // Transfer as ArrayBuffer - Blobs don't reliably survive message serialization
+    const buffer = await response.arrayBuffer();
     return {
       ok: true,
       status: response.status,
       statusText: response.statusText,
-      content: await response.blob(),
+      contentType,
+      buffer,
     };
   }).catch((e) => {
     return { ok: false, status: 0, statusText: e?.message || "Network error" };

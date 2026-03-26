@@ -120,8 +120,9 @@ async function fetchTorrentViaContentScript(
       type: "fetch-torrent",
       url,
     });
-    if (response?.ok && response.content) {
-      return response.content as Blob;
+    if (response?.ok && response.buffer) {
+      const contentType = response.contentType || "application/x-bittorrent";
+      return new Blob([response.buffer], { type: contentType });
     }
   } catch {}
   return undefined;
