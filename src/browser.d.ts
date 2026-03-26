@@ -188,6 +188,19 @@ declare namespace browser.webRequest {
   type OnHeadersReceivedListener = (
     details: _OnHeadersReceivedDetails,
   ) => BlockingResponse | void;
+
+  interface StreamFilter {
+    ondata: ((event: { data: ArrayBuffer }) => void) | null;
+    onstop: (() => void) | null;
+    onerror: (() => void) | null;
+    status: "uninitialized" | "transferringdata" | "finishedtransferringdata" | "suspended" | "closed" | "disconnected" | "failed";
+    error: string;
+    close(): void;
+    disconnect(): void;
+    suspend(): void;
+    resume(): void;
+    write(data: ArrayBuffer | Uint8Array): void;
+  }
 }
 
 declare const browser: {
@@ -251,5 +264,6 @@ declare const browser: {
       removeListener: (listener: browser.webRequest.OnHeadersReceivedListener) => void;
       hasListener: (listener: browser.webRequest.OnHeadersReceivedListener) => boolean;
     };
+    filterResponseData: (requestId: string) => browser.webRequest.StreamFilter;
   };
 };
