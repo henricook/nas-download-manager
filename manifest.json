@@ -1,7 +1,17 @@
 {
   "manifest_version": 2,
-  "name": "NAS Download Manager (for Synology)",
-  "version": "0.12.2",
+  "name": "NAS Download Manager + File Capture",
+  "version": "0.13.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "nas-download-manager-torrent@henricook",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["none"],
+        "optional": []
+      }
+    }
+  },
   "description": "__MSG_Add_and_manage_Download_Station_tasks_on_your_Synology_DiskStation__",
   "default_locale": "en",
   "background": {
