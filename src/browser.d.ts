@@ -129,6 +129,67 @@ type OnMessageListener = (
   sendResponse: (response: object) => void,
 ) => Promise<object | string | void> | boolean | void;
 
+declare namespace browser.webRequest {
+  interface HttpHeader {
+    name: string;
+    value?: string;
+    binaryValue?: number[];
+  }
+
+  type HttpHeaders = HttpHeader[];
+
+  type ResourceType =
+    | "main_frame"
+    | "sub_frame"
+    | "stylesheet"
+    | "script"
+    | "image"
+    | "object"
+    | "xmlhttprequest"
+    | "xslt"
+    | "ping"
+    | "beacon"
+    | "xml_dtd"
+    | "font"
+    | "media"
+    | "websocket"
+    | "csp_report"
+    | "imageset"
+    | "web_manifest"
+    | "other";
+
+  interface _OnHeadersReceivedDetails {
+    requestId: string;
+    url: string;
+    method: string;
+    frameId: number;
+    parentFrameId: number;
+    tabId: number;
+    type: ResourceType;
+    timeStamp: number;
+    statusLine: string;
+    responseHeaders?: HttpHeaders;
+    statusCode: number;
+  }
+
+  interface BlockingResponse {
+    cancel?: boolean;
+    redirectUrl?: string;
+    responseHeaders?: HttpHeaders;
+  }
+
+  interface RequestFilter {
+    urls: string[];
+    types?: ResourceType[];
+    tabId?: number;
+    windowId?: number;
+  }
+
+  type OnHeadersReceivedListener = (
+    details: _OnHeadersReceivedDetails,
+  ) => BlockingResponse | void;
+}
+
 declare const browser: {
   extension: {
     getURL: (relativeUrl: string) => string;
@@ -178,5 +239,16 @@ declare const browser: {
   i18n: {
     getMessage: (messageName: string, placeholders?: (string | number)[]) => string;
     getUILanguage: () => string;
+  };
+  webRequest: {
+    onHeadersReceived: {
+      addListener: (
+        listener: browser.webRequest.OnHeadersReceivedListener,
+        filter: browser.webRequest.RequestFilter,
+        extraInfoSpec?: string[],
+      ) => void;
+      removeListener: (listener: browser.webRequest.OnHeadersReceivedListener) => void;
+      hasListener: (listener: browser.webRequest.OnHeadersReceivedListener) => boolean;
+    };
   };
 };

@@ -13,6 +13,8 @@
     "contextMenus",
     "storage",
     "notifications",
+    "webRequest",
+    "webRequestBlocking",
     "http://*/*",
     "https://*/*"
   ],
